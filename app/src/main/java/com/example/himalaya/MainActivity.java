@@ -62,6 +62,7 @@ public class MainActivity extends FragmentActivity {
         //创建indicator适配器
         mIndicatorAdapter=new IndicatorAdapter(this);
         CommonNavigator commonNavigator=new CommonNavigator(this);
+        commonNavigator.setAdjustMode(true);
         commonNavigator.setAdapter(mIndicatorAdapter);
 
         contentPager=this.findViewById(R.id.content_pager);
