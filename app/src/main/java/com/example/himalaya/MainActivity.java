@@ -50,7 +50,7 @@ public class MainActivity extends FragmentActivity {
             public void onTabClick(int index) {
                 LogUtil.d(TAG,"click index is -->"+index);
                 if(contentPager!=null){
-                    contentPager.setCurrentItem(index);
+                    contentPager.setCurrentItem(index,false);
                 }
             }
         });

@@ -10,6 +10,7 @@ import com.example.himalaya.adapter.RecommendListAdapter;
 import com.example.himalaya.base.BaseFragment;
 import com.example.himalaya.interfaces.IRecommendViewCallBack;
 import com.example.himalaya.presenters.RecommendPresenter;
+import com.example.himalaya.views.UILoader;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 
 import net.lucode.hackware.magicindicator.buildins.UIUtil;
@@ -26,9 +27,30 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     private RecyclerView mRecommendRv;
     private RecommendListAdapter recommendListAdapter;
     private RecommendPresenter mRecommendPresenter;
+    private UILoader mUiLoader;
 
     @Override
-    protected View onSubViewLoaded(LayoutInflater layoutInflater, ViewGroup container) {
+    protected View onSubViewLoaded(final LayoutInflater layoutInflater, ViewGroup container) {
+        mUiLoader=new UILoader(getContext()) {
+           @Override
+           protected View getSuccessView(ViewGroup container) {
+               return createSuccessView(layoutInflater,container);
+           }
+       };
+
+        //获取逻辑层的对象
+        mRecommendPresenter = RecommendPresenter.getInstance();
+        //获取推荐列表
+        mRecommendPresenter.getRecommendList();
+        mRecommendPresenter.registerViewCallBack(this);
+
+        if (mUiLoader.getParent() instanceof ViewGroup) {
+            ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
+        }
+        return mRootView;
+    }
+
+    private View createSuccessView(LayoutInflater layoutInflater, ViewGroup container) {
         mRootView=layoutInflater.inflate(R.layout.fragment_recommend,container,false);
 
         mRecommendRv=mRootView.findViewById(R.id.recommendList);
@@ -50,40 +72,37 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         recommendListAdapter=new RecommendListAdapter();
         mRecommendRv.setAdapter(recommendListAdapter);
 
-
-
-        //获取逻辑层的对象
-        mRecommendPresenter = RecommendPresenter.getInstance();
-        //获取推荐列表
-        mRecommendPresenter.getRecommendList();
-        mRecommendPresenter.registerViewCallBack(this);
-
         return mRootView;
     }
 
 
-
-    private void upRecommendUI(List<Album> albumList) {
-        //设置数据给适配器
-        recommendListAdapter.setData(albumList);
-    }
 
     @Override
     public void onRecommendListLoaded(List<Album> result) {
         //获取到推荐内容后，此方法会被调用（成功
         //更新ui
         recommendListAdapter.setData(result);
+        mUiLoader.updateStatus(UILoader.UIStatus.SUCCESS);
     }
 
     @Override
-    public void onLoadMore(List<Album> result) {
+    public void onNetworkError() {
+        mUiLoader.updateStatus(UILoader.UIStatus.NETWORK_ERROR);
 
     }
 
     @Override
-    public void onRefreshMore(List<Album> result) {
+    public void onEmpty() {
+        mUiLoader.updateStatus(UILoader.UIStatus.EMPTY);
 
     }
+
+    @Override
+    public void onLoading() {
+        mUiLoader.updateStatus(UILoader.UIStatus.LOADING);
+
+    }
+
 
     @Override
     public void onDestroyView() {
