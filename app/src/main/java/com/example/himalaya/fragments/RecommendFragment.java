@@ -47,7 +47,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         if (mUiLoader.getParent() instanceof ViewGroup) {
             ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
         }
-        return mRootView;
+        return mUiLoader;
     }
 
     private View createSuccessView(LayoutInflater layoutInflater, ViewGroup container) {
