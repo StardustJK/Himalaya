@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RecommendFragment extends BaseFragment implements IRecommendViewCallBack {
+public class RecommendFragment extends BaseFragment implements IRecommendViewCallBack, UILoader.OnRetryClickListener {
     private static String TAG="RecommendFragment";
     private View mRootView;
     private RecyclerView mRecommendRv;
@@ -47,6 +47,8 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         if (mUiLoader.getParent() instanceof ViewGroup) {
             ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
         }
+
+        mUiLoader.setOnRetryClickListener(this);
         return mUiLoader;
     }
 
@@ -110,6 +112,14 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         //取消注册
         if (mRecommendPresenter!=null) {
             mRecommendPresenter.unRegisterViewCallBack(this);
+        }
+    }
+
+    @Override
+    public void onRetryClick() {
+        //网络不佳时，用户点击了重试
+        if (mRecommendPresenter != null) {
+            mRecommendPresenter.getRecommendList();
         }
     }
 }
