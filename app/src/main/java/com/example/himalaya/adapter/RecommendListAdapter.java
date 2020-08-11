@@ -17,7 +17,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdapter.innerHolder> {
+public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdapter.InnerHolder> {
 
     private List<Album> mData=new ArrayList<>();
     private static final String TAG="RecommendListAdapter";
@@ -25,22 +25,24 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
 
     @NonNull
     @Override
-    public innerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public InnerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //载view
         View itemView= LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recommend,parent,false);
 
-        return new innerHolder(itemView);
+        return new InnerHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull innerHolder holder, int position) {
+    public void onBindViewHolder(@NonNull InnerHolder holder, final int position) {
         //设置数据
         holder.itemView.setTag(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mItemClickListener != null) {
-                    mItemClickListener.onItemClick((Integer) v.getTag());
+                    int clickPosition=(Integer) v.getTag();
+                    mItemClickListener.onItemClick(clickPosition,mData.get(clickPosition));
+
                 }
                 LogUtil.d(TAG,"holder.itemView click -->"+v.getTag());
             }
@@ -65,8 +67,8 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         notifyDataSetChanged();
     }
 
-    public class innerHolder extends RecyclerView.ViewHolder {
-        public innerHolder(@NonNull View itemView) {
+    public class InnerHolder extends RecyclerView.ViewHolder {
+        public InnerHolder(@NonNull View itemView) {
             super(itemView);
         }
 
@@ -93,6 +95,6 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         this.mItemClickListener=listener;
     }
     public interface OnRecommendItemClickListener{
-        void onItemClick(int position);
+        void onItemClick(int position, Album album);
     }
 }
