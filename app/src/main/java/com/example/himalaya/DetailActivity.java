@@ -1,6 +1,7 @@
 package com.example.himalaya;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,7 +11,10 @@ import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.interfaces.IAlbumDetailPresenter;
 import com.example.himalaya.interfaces.IAlbumDetailViewCallBack;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
+import com.example.himalaya.utils.ImageBlur;
+import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.RoundRectImageView;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
@@ -21,6 +25,7 @@ import java.util.List;
 
 public class DetailActivity extends BaseActivity implements IAlbumDetailViewCallBack {
 
+    private static final String TAG = "DetailActivity";
     private ImageView largeCover;
     private RoundRectImageView smallCover;
     private TextView mAlbumTitle;
@@ -60,8 +65,24 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         if (mAlbumAuthor != null) {
             mAlbumAuthor.setText(album.getAnnouncer().getNickname());
         }
+        //毛玻璃效果
         if (largeCover != null) {
-            Picasso.with(this).load(album.getCoverUrlLarge()).into(largeCover);
+            //这里使用了异步网络请求，所以用callback不然可能为空
+            Picasso.with(this).load(album.getCoverUrlLarge()).into(largeCover, new Callback() {
+                @Override
+                public void onSuccess() {
+                    Drawable drawable=largeCover.getDrawable();
+                    if(drawable!=null){
+                        ImageBlur.makeBlur(largeCover,DetailActivity.this);
+                    }
+                }
+
+                @Override
+                public void onError() {
+
+                    LogUtil.d(TAG,"on error");
+                }
+            });
         }
         if (smallCover != null) {
             Picasso.with(this).load(album.getCoverUrlSmall()).into(smallCover);
