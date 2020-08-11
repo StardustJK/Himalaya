@@ -1,10 +1,12 @@
 package com.example.himalaya.fragments;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.himalaya.DetailActivity;
 import com.example.himalaya.R;
 import com.example.himalaya.adapter.RecommendListAdapter;
 import com.example.himalaya.base.BaseFragment;
@@ -21,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RecommendFragment extends BaseFragment implements IRecommendViewCallBack, UILoader.OnRetryClickListener {
+public class RecommendFragment extends BaseFragment implements IRecommendViewCallBack, UILoader.OnRetryClickListener, RecommendListAdapter.OnRecommendItemClickListener {
     private static String TAG="RecommendFragment";
     private View mRootView;
     private RecyclerView mRecommendRv;
@@ -73,6 +75,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         //设置适配器
         recommendListAdapter=new RecommendListAdapter();
         mRecommendRv.setAdapter(recommendListAdapter);
+        recommendListAdapter.setOnRecommendItemClickListener(this);
 
         return mRootView;
     }
@@ -121,5 +124,13 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         if (mRecommendPresenter != null) {
             mRecommendPresenter.getRecommendList();
         }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        //item被点击了,跳转到detailActivity
+        Intent intent=new Intent(getContext(), DetailActivity.class);
+        startActivity(intent);
+
     }
 }
