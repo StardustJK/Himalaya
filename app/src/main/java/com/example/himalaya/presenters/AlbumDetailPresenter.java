@@ -2,16 +2,26 @@ package com.example.himalaya.presenters;
 
 import com.example.himalaya.interfaces.IAlbumDetailPresenter;
 import com.example.himalaya.interfaces.IAlbumDetailViewCallBack;
+import com.example.himalaya.utils.Constants;
+import com.example.himalaya.utils.LogUtil;
+import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
+import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
+import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
+import com.ximalaya.ting.android.opensdk.model.track.Track;
+import com.ximalaya.ting.android.opensdk.model.track.TrackList;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AlbumDetailPresenter implements IAlbumDetailPresenter {
 
+    private static String TAG="AlbumDetailPresenter";
     private Album mTargetAlbum;
 
-    private List<IAlbumDetailViewCallBack> callBacks=new ArrayList<>();
+    private List<IAlbumDetailViewCallBack> mCallBacks=new ArrayList<>();
     //单例，构造方法要私有化别人才不能构造
     private AlbumDetailPresenter(){
 
@@ -41,13 +51,41 @@ public class AlbumDetailPresenter implements IAlbumDetailPresenter {
 
     @Override
     public void getAlumDetail(int albumId, int page) {
+        //根据album和页码获取id
+        Map<String,String> map=new HashMap<>();
+        map.put(DTransferConstants.ALBUM_ID,albumId+"");
+        map.put(DTransferConstants.SORT,"asc");
+        map.put(DTransferConstants.PAGE,page+"");
+        map.put(DTransferConstants.PAGE_SIZE, Constants.COUNT_DEFAULT+"");
+        CommonRequest.getTracks(map, new IDataCallBack<TrackList>() {
+            @Override
+            public void onSuccess(TrackList trackList) {
+                if (trackList != null) {
+                    List<Track> tracks=trackList.getTracks();
+                    LogUtil.d(TAG,"tracks size --> "+tracks.size());
+                    handlerAlbumDetailResult(tracks);
+                }
+            }
 
+            @Override
+            public void onError(int i, String s) {
+                LogUtil.d(TAG,"error-->"+i);
+                LogUtil.d(TAG,"errormsg-->"+s);
+            }
+        });
+
+    }
+
+    private void handlerAlbumDetailResult(List<Track> tracks) {
+        for (IAlbumDetailViewCallBack mCallBack : mCallBacks) {
+            mCallBack.onDetailListLoaded(tracks);
+        }
     }
 
     @Override
     public void registerViewCallback(IAlbumDetailViewCallBack detailViewCallBack) {
-        if(!callBacks.contains(detailViewCallBack)){
-            callBacks.add(detailViewCallBack);
+        if(!mCallBacks.contains(detailViewCallBack)){
+            mCallBacks.add(detailViewCallBack);
             if(mTargetAlbum!=null){
                 detailViewCallBack.onAlbumLoaded(mTargetAlbum);
 
@@ -57,7 +95,7 @@ public class AlbumDetailPresenter implements IAlbumDetailPresenter {
 
     @Override
     public void unRegisterViewCallback(IAlbumDetailViewCallBack detailViewCallBack) {
-        callBacks.remove(detailViewCallBack);
+        mCallBacks.remove(detailViewCallBack);
     }
 
 
