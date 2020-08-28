@@ -76,10 +76,10 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         mDetailList.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                outRect.top= UIUtil.dip2px(view.getContext(),5);
-                outRect.bottom=UIUtil.dip2px(view.getContext(),5);
-                outRect.left=UIUtil.dip2px(view.getContext(),5);
-                outRect.right=UIUtil.dip2px(view.getContext(),5);
+                outRect.top= UIUtil.dip2px(view.getContext(),2);
+                outRect.bottom=UIUtil.dip2px(view.getContext(),2);
+                outRect.left=UIUtil.dip2px(view.getContext(),2);
+                outRect.right=UIUtil.dip2px(view.getContext(),2);
 
             }
         });
