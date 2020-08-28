@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +26,8 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
     //格式化时间
     private SimpleDateFormat mUpdateDateFormat=new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat mDurationFormat=new SimpleDateFormat("mm:ss");
+    private ItemClickListener mItemClickListener=null;
+
     @NonNull
     @Override
     public DetailListAdapter.InnerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,7 +37,7 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DetailListAdapter.InnerHolder holder, int position) {
+    public void onBindViewHolder(@NonNull DetailListAdapter.InnerHolder holder, final int position) {
         View itemView=holder.itemView;
         //顺序
         TextView orderTv=itemView.findViewById(R.id.order_text);
@@ -58,6 +61,15 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
         String updateTimeText=mUpdateDateFormat.format(track.getUpdatedAt());
         updateTv.setText(updateTimeText);
 
+        //设置item的点击事件
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onItemClick();
+                }
+            }
+        });
 
     }
 
@@ -77,5 +89,13 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
         public InnerHolder(@NonNull View itemView) {
             super(itemView);
         }
+    }
+
+    public void setItemClickListener(ItemClickListener listener){
+        mItemClickListener=listener;
+    }
+    public interface ItemClickListener{
+        void onItemClick();
+
     }
 }

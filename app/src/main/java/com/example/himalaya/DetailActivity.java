@@ -1,5 +1,6 @@
 package com.example.himalaya;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -32,7 +33,7 @@ import net.lucode.hackware.magicindicator.buildins.UIUtil;
 
 import java.util.List;
 
-public class DetailActivity extends BaseActivity implements IAlbumDetailViewCallBack, UILoader.OnRetryClickListener {
+public class DetailActivity extends BaseActivity implements IAlbumDetailViewCallBack, UILoader.OnRetryClickListener, DetailListAdapter.ItemClickListener {
 
     private static final String TAG = "DetailActivity";
     private ImageView largeCover;
@@ -109,6 +110,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
 
             }
         });
+        mDetailListAdapter.setItemClickListener(this);
         return detailListView;
 
     }
@@ -186,5 +188,12 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
             mAlbumDetailPresenter.getAlumDetail((int) mCurrentId, mCurrentPage);
 
         }
+    }
+
+    @Override
+    public void onItemClick() {
+        //TODO:跳转到播放器界面
+        Intent intent=new Intent(this,PlayerActivity.class);
+        startActivity(intent);
     }
 }

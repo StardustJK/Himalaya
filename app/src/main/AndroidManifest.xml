@@ -21,6 +21,9 @@
         <activity android:name=".DetailActivity">
 
         </activity>
+        <activity android:name=".PlayerActivity">
+
+        </activity>
     </application>
     <!--连接网络-->
     <uses-permission android:name="android.permission.INTERNET" />
