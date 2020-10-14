@@ -1,5 +1,6 @@
 package com.example.himalaya.interfaces;
 
+import com.example.himalaya.base.IBasePresenter;
 import com.example.himalaya.utils.Constants;
 import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface IRecommendPresenter {
+public interface IRecommendPresenter extends IBasePresenter<IRecommendViewCallBack> {
 
     /*
     获取推荐内容
@@ -24,9 +25,5 @@ public interface IRecommendPresenter {
     void pull2RefreshMore();
 
     void loadMore();
-
-    //注册UI的回调
-    void registerViewCallBack(IRecommendViewCallBack callback);
-    void unRegisterViewCallBack(IRecommendViewCallBack callBack);
 
 }

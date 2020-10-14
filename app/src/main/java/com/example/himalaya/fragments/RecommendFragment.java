@@ -45,7 +45,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         mRecommendPresenter = RecommendPresenter.getInstance();
         //获取推荐列表
         mRecommendPresenter.getRecommendList();
-        mRecommendPresenter.registerViewCallBack(this);
+        mRecommendPresenter.registerViewCallback(this);
 
         if (mUiLoader.getParent() instanceof ViewGroup) {
             ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
@@ -115,7 +115,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         super.onDestroyView();
         //取消注册
         if (mRecommendPresenter!=null) {
-            mRecommendPresenter.unRegisterViewCallBack(this);
+            mRecommendPresenter.unRegisterViewCallback(this);
         }
     }
 

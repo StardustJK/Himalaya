@@ -22,43 +22,43 @@ import java.util.List;
 
 public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.InnerHolder> {
 
-    private List<Track> mDetailData=new ArrayList<>();
+    private List<Track> mDetailData = new ArrayList<>();
     //格式化时间
-    private SimpleDateFormat mUpdateDateFormat=new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat mDurationFormat=new SimpleDateFormat("mm:ss");
-    private ItemClickListener mItemClickListener=null;
+    private SimpleDateFormat mUpdateDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat mDurationFormat = new SimpleDateFormat("mm:ss");
+    private ItemClickListener mItemClickListener = null;
 
     @NonNull
     @Override
     public DetailListAdapter.InnerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView=LayoutInflater.from(parent.getContext()).inflate(R.layout.item_album_detail,parent,false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_album_detail, parent, false);
 
         return new InnerHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull DetailListAdapter.InnerHolder holder, final int position) {
-        View itemView=holder.itemView;
+        View itemView = holder.itemView;
         //顺序
-        TextView orderTv=itemView.findViewById(R.id.order_text);
+        TextView orderTv = itemView.findViewById(R.id.order_text);
         //标题
-        TextView titleTv=itemView.findViewById(R.id.detail_item_title);
+        TextView titleTv = itemView.findViewById(R.id.detail_item_title);
         //播放量
-        TextView playCountTv=itemView.findViewById(R.id.detail_item_play_count);
+        TextView playCountTv = itemView.findViewById(R.id.detail_item_play_count);
         //时长
-        TextView playDurationTv=itemView.findViewById(R.id.detail_item_duration);
+        TextView playDurationTv = itemView.findViewById(R.id.detail_item_duration);
         //日期
-        TextView updateTv=itemView.findViewById(R.id.detail_item_date);
+        TextView updateTv = itemView.findViewById(R.id.detail_item_date);
 
         //设置数据
-        Track track=mDetailData.get(position);
-        orderTv.setText(position+"");
+        Track track = mDetailData.get(position);
+        orderTv.setText(position + "");
         titleTv.setText(track.getTrackTitle());
-        playCountTv.setText(track.getPlayCount()+"");
-        int durationMil=track.getDuration()*1000;
-        String duration=mDurationFormat.format(durationMil);
+        playCountTv.setText(track.getPlayCount() + "");
+        int durationMil = track.getDuration() * 1000;
+        String duration = mDurationFormat.format(durationMil);
         playDurationTv.setText(duration);
-        String updateTimeText=mUpdateDateFormat.format(track.getUpdatedAt());
+        String updateTimeText = mUpdateDateFormat.format(track.getUpdatedAt());
         updateTv.setText(updateTimeText);
 
         //设置item的点击事件
@@ -66,7 +66,8 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
             @Override
             public void onClick(View v) {
                 if (mItemClickListener != null) {
-                    mItemClickListener.onItemClick();
+                    //列表和位置参数
+                    mItemClickListener.onItemClick(mDetailData, position);
                 }
             }
         });
@@ -91,11 +92,12 @@ public class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.In
         }
     }
 
-    public void setItemClickListener(ItemClickListener listener){
-        mItemClickListener=listener;
+    public void setItemClickListener(ItemClickListener listener) {
+        mItemClickListener = listener;
     }
-    public interface ItemClickListener{
-        void onItemClick();
+
+    public interface ItemClickListener {
+        void onItemClick(List<Track> detailData, int position);
 
     }
 }

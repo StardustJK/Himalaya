@@ -24,6 +24,9 @@
         <activity android:name=".PlayerActivity">
 
         </activity>
+        <service
+            android:name="com.ximalaya.ting.android.opensdk.player.service.XmPlayerService"
+            android:process=":player"/>
     </application>
     <!--连接网络-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -37,5 +40,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--target >=28 需要设置此权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
 
 </manifest>

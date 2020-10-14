@@ -1,6 +1,8 @@
 package com.example.himalaya.interfaces;
 
-public interface IAlbumDetailPresenter {
+import com.example.himalaya.base.IBasePresenter;
+
+public interface IAlbumDetailPresenter extends IBasePresenter<IAlbumDetailViewCallBack> {
 
 
     //下拉加载更多
@@ -11,9 +13,6 @@ public interface IAlbumDetailPresenter {
     //获取专辑详情
     void getAlumDetail(int albumId,int page);
 
-    void registerViewCallback(IAlbumDetailViewCallBack detailViewCallBack);
-
-    void unRegisterViewCallback(IAlbumDetailViewCallBack detailViewCallBack);
 
 
 }

@@ -20,6 +20,7 @@ import com.example.himalaya.adapter.DetailListAdapter;
 import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.interfaces.IAlbumDetailViewCallBack;
 import com.example.himalaya.presenters.AlbumDetailPresenter;
+import com.example.himalaya.presenters.PlayerPresenter;
 import com.example.himalaya.utils.ImageBlur;
 import com.example.himalaya.utils.LogUtil;
 import com.example.himalaya.views.RoundRectImageView;
@@ -47,7 +48,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     private DetailListAdapter mDetailListAdapter;
     private FrameLayout mDetailListContainer;
     private UILoader mUiLoader;
-    private long mCurrentId=-1;
+    private long mCurrentId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +119,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
     @Override
     public void onDetailListLoaded(List<Track> tracks) {
         //判断数据结果，根据结果显示ui
-        if (tracks==null||tracks.size()==0) {
+        if (tracks == null || tracks.size() == 0) {
             if (mUiLoader != null) {
                 mUiLoader.updateStatus(UILoader.UIStatus.EMPTY);
             }
@@ -133,7 +134,7 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
 
     @Override
     public void onAlbumLoaded(Album album) {
-        mCurrentId=album.getId();
+        mCurrentId = album.getId();
 
         //获取专辑详情内容
         if (mAlbumDetailPresenter != null) {
@@ -190,10 +191,15 @@ public class DetailActivity extends BaseActivity implements IAlbumDetailViewCall
         }
     }
 
+
     @Override
-    public void onItemClick() {
+    public void onItemClick(List<Track> detailData, int position) {
+        //设置播放器的数据
+        PlayerPresenter playerPresenter = PlayerPresenter.getPlayerPresenter();
+        playerPresenter.setPLayList(detailData, position);
+
         //TODO:跳转到播放器界面
-        Intent intent=new Intent(this,PlayerActivity.class);
+        Intent intent = new Intent(this, PlayerActivity.class);
         startActivity(intent);
     }
 }
