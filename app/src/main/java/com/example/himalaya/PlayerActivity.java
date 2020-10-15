@@ -1,6 +1,7 @@
 package com.example.himalaya;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -30,6 +31,10 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
     private SeekBar mDurationSeekBar;
     private int mCurrentProgress = 0;
     private boolean mIsUserTouchProgressBar =false;
+    private ImageView playNextBtn;
+    private ImageView playPreBtn;
+    private TextView mTrackTitleTv;
+    private String mTrackTitle;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,6 +100,24 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
                 mPlayerPresenter.seekTo(mCurrentProgress);
             }
         });
+
+        playNextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayerPresenter != null) {
+                    mPlayerPresenter.playNext();
+                }
+            }
+        });
+
+        playPreBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayerPresenter != null) {
+                    mPlayerPresenter.playPre();
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -102,6 +125,12 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         mTotalDuration = findViewById(R.id.track_duration);
         mCurrentPosition = findViewById(R.id.current_position);
         mDurationSeekBar = findViewById(R.id.track_seek_bar);
+        playNextBtn=findViewById(R.id.play_next);
+        playPreBtn=findViewById(R.id.play_pre);
+        mTrackTitleTv=findViewById(R.id.track_title);
+        if(!TextUtils.isEmpty(mTrackTitle)){
+            mTrackTitleTv.setText(mTrackTitle);
+        }
     }
 
 
@@ -191,5 +220,13 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
     @Override
     public void onAdFinished() {
 
+    }
+
+    @Override
+    public void onTrackTitleUpdate(String title) {
+        this.mTrackTitle=title;
+        if (mTrackTitleTv != null) {
+            mTrackTitleTv.setText(title);
+        }
     }
 }

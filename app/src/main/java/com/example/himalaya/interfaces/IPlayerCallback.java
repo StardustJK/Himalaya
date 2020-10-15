@@ -69,4 +69,10 @@ public interface IPlayerCallback {
      * 广告结束
      */
     void onAdFinished();
+
+    /**
+     * 更新当前节目的标题
+     * @param title 节目标题
+     */
+    void onTrackTitleUpdate(String title);
 }
