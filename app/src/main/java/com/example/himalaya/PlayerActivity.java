@@ -2,27 +2,31 @@ package com.example.himalaya;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import com.example.himalaya.adapter.PlayerTrackPagerAdapter;
 import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.interfaces.IPlayerCallback;
 import com.example.himalaya.presenters.PlayerPresenter;
-import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PlayerActivity extends BaseActivity implements IPlayerCallback {
+public class PlayerActivity extends BaseActivity implements IPlayerCallback, ViewPager.OnPageChangeListener {
 
     private static final String TAG = "PlayerActivity";
-    private ImageView controlBtn;
+    private ImageView mControlBtn;
     private PlayerPresenter mPlayerPresenter;
     private SimpleDateFormat minFormat = new SimpleDateFormat("mm:ss");
     private SimpleDateFormat hourFormat = new SimpleDateFormat("hh:mm:ss");
@@ -30,11 +34,14 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
     private TextView mCurrentPosition;
     private SeekBar mDurationSeekBar;
     private int mCurrentProgress = 0;
-    private boolean mIsUserTouchProgressBar =false;
-    private ImageView playNextBtn;
-    private ImageView playPreBtn;
+    private boolean mIsUserTouchProgressBar = false;
+    private ImageView mPlayNextBtn;
+    private ImageView mPlayPreBtn;
     private TextView mTrackTitleTv;
     private String mTrackTitle;
+    private ViewPager mTrackPageView;
+    private PlayerTrackPagerAdapter mPlayerTrackPagerAdapter;
+    private boolean mIsUserSelectPage = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +50,8 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         mPlayerPresenter = PlayerPresenter.getPlayerPresenter();
         mPlayerPresenter.registerViewCallback(this);
         initView();
+        //初始化以后再获取数据
+        mPlayerPresenter.getPlayList();
         initEvent();
         startPlay();
     }
@@ -70,7 +79,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
      */
     private void initEvent() {
 
-        controlBtn.setOnClickListener(new View.OnClickListener() {
+        mControlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayerPresenter.isPlay()) {
@@ -84,24 +93,24 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         mDurationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){
-                    mCurrentProgress=progress;
+                if (fromUser) {
+                    mCurrentProgress = progress;
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                mIsUserTouchProgressBar =true;
+                mIsUserTouchProgressBar = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mIsUserTouchProgressBar =false;
+                mIsUserTouchProgressBar = false;
                 mPlayerPresenter.seekTo(mCurrentProgress);
             }
         });
 
-        playNextBtn.setOnClickListener(new View.OnClickListener() {
+        mPlayNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayerPresenter != null) {
@@ -110,7 +119,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
             }
         });
 
-        playPreBtn.setOnClickListener(new View.OnClickListener() {
+        mPlayPreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPlayerPresenter != null) {
@@ -118,27 +127,44 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
                 }
             }
         });
+
+        mTrackPageView.addOnPageChangeListener(this);
+        mTrackPageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        mIsUserSelectPage = true;
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private void initView() {
-        controlBtn = findViewById(R.id.play_or_pause_btn);
+        mControlBtn = findViewById(R.id.play_or_pause_btn);
         mTotalDuration = findViewById(R.id.track_duration);
         mCurrentPosition = findViewById(R.id.current_position);
         mDurationSeekBar = findViewById(R.id.track_seek_bar);
-        playNextBtn=findViewById(R.id.play_next);
-        playPreBtn=findViewById(R.id.play_pre);
-        mTrackTitleTv=findViewById(R.id.track_title);
-        if(!TextUtils.isEmpty(mTrackTitle)){
+        mPlayNextBtn = findViewById(R.id.play_next);
+        mPlayPreBtn = findViewById(R.id.play_pre);
+        mTrackTitleTv = findViewById(R.id.track_title);
+        if (!TextUtils.isEmpty(mTrackTitle)) {
             mTrackTitleTv.setText(mTrackTitle);
         }
+        mTrackPageView = findViewById(R.id.track_pager_view);
+        mPlayerTrackPagerAdapter = new PlayerTrackPagerAdapter();
+        mTrackPageView.setAdapter(mPlayerTrackPagerAdapter);
     }
 
 
     @Override
     public void onPlayStart() {
         //开始播放，修改UI
-        if (controlBtn != null) {
-            controlBtn.setImageResource(R.mipmap.stop_normal);
+        if (mControlBtn != null) {
+            mControlBtn.setImageResource(R.mipmap.stop_normal);
 
         }
 
@@ -146,16 +172,16 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
 
     @Override
     public void onPlayPause() {
-        if (controlBtn != null) {
-            controlBtn.setImageResource(R.mipmap.play_normal);
+        if (mControlBtn != null) {
+            mControlBtn.setImageResource(R.mipmap.play_normal);
 
         }
     }
 
     @Override
     public void onPlayStop() {
-        if (controlBtn != null) {
-            controlBtn.setImageResource(R.mipmap.play_normal);
+        if (mControlBtn != null) {
+            mControlBtn.setImageResource(R.mipmap.play_normal);
 
         }
     }
@@ -177,7 +203,10 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
 
     @Override
     public void onListLoad(List<Track> list) {
-
+        //把数据设置到适配器里面
+        if (mPlayerTrackPagerAdapter != null) {
+            mPlayerTrackPagerAdapter.setData(list);
+        }
     }
 
     @Override
@@ -206,7 +235,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         //更新当前时间
         mCurrentPosition.setText(currentPos);
         //更新进度
-        if (!mIsUserTouchProgressBar){
+        if (!mIsUserTouchProgressBar) {
             mDurationSeekBar.setProgress(currentProgress);
         }
 
@@ -223,10 +252,37 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
     }
 
     @Override
-    public void onTrackTitleUpdate(String title) {
-        this.mTrackTitle=title;
+    public void onTrackUpdate(Track track, int playIndex) {
+        //更新标题
+        this.mTrackTitle = track.getTrackTitle();
         if (mTrackTitleTv != null) {
-            mTrackTitleTv.setText(title);
+            mTrackTitleTv.setText(mTrackTitle);
         }
+        //修改页面图片
+        if (mTrackPageView != null) {
+            mTrackPageView.setCurrentItem(playIndex, true);
+        }
+
+    }
+
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        //页面选中的时候切换播放的内容
+        if (mPlayerPresenter != null && mIsUserSelectPage) {
+            mPlayerPresenter.playByIndex(position);
+        }
+        mIsUserSelectPage = false;
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 }
