@@ -104,7 +104,9 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
 
     @Override
     public void seekTo(int progress) {
-
+        if (mPlayerManager != null) {
+            mPlayerManager.seekTo(progress);
+        }
     }
 
     @Override
@@ -234,7 +236,11 @@ public class PlayerPresenter implements IPlayerPresenter, IXmAdsStatusListener, 
 
     @Override
     public void onPlayProgress(int currentPos, int duration) {
+        //单位是毫秒
         LogUtil.d(TAG, "onPlayProgress");
+        for(IPlayerCallback iPlayerCallback:mIPlayerCallbacks){
+            iPlayerCallback.onProgressChange(currentPos,duration);
+        }
 
     }
 

@@ -58,7 +58,7 @@ public interface IPlayerCallback {
      * @param currentProgress
      * @param total
      */
-    void onProgressChange(long currentProgress, long total);
+    void onProgressChange(int currentProgress, int total);
 
     /**
      * 广告正在加载

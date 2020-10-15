@@ -1,30 +1,41 @@
 package com.example.himalaya;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
 import com.example.himalaya.base.BaseActivity;
 import com.example.himalaya.interfaces.IPlayerCallback;
 import com.example.himalaya.presenters.PlayerPresenter;
+import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.model.track.Track;
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayListControl;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class PlayerActivity extends BaseActivity implements IPlayerCallback {
 
+    private static final String TAG = "PlayerActivity";
     private ImageView controlBtn;
     private PlayerPresenter mPlayerPresenter;
+    private SimpleDateFormat minFormat = new SimpleDateFormat("mm:ss");
+    private SimpleDateFormat hourFormat = new SimpleDateFormat("hh:mm:ss");
+    private TextView mTotalDuration;
+    private TextView mCurrentPosition;
+    private SeekBar mDurationSeekBar;
+    private int mCurrentProgress = 0;
+    private boolean mIsUserTouchProgressBar =false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-        mPlayerPresenter=PlayerPresenter.getPlayerPresenter();
+        mPlayerPresenter = PlayerPresenter.getPlayerPresenter();
         mPlayerPresenter.registerViewCallback(this);
         initView();
         initEvent();
@@ -36,7 +47,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         super.onDestroy();
         if (mPlayerPresenter != null) {
             mPlayerPresenter.unRegisterViewCallback(this);
-            mPlayerPresenter=null;
+            mPlayerPresenter = null;
         }
     }
 
@@ -57,19 +68,40 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
         controlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mPlayerPresenter.isPlay()){
+                if (mPlayerPresenter.isPlay()) {
                     mPlayerPresenter.pause();
-                }
-                else{
+                } else {
                     mPlayerPresenter.play();
                 }
+            }
+        });
+
+        mDurationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    mCurrentProgress=progress;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                mIsUserTouchProgressBar =true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mIsUserTouchProgressBar =false;
+                mPlayerPresenter.seekTo(mCurrentProgress);
             }
         });
     }
 
     private void initView() {
-        controlBtn=findViewById(R.id.play_or_pause_btn);
-
+        controlBtn = findViewById(R.id.play_or_pause_btn);
+        mTotalDuration = findViewById(R.id.track_duration);
+        mCurrentPosition = findViewById(R.id.current_position);
+        mDurationSeekBar = findViewById(R.id.track_seek_bar);
     }
 
 
@@ -125,7 +157,29 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback {
     }
 
     @Override
-    public void onProgressChange(long currentProgress, long total) {
+    public void onProgressChange(int currentProgress, int total) {
+        mDurationSeekBar.setMax(total);
+        //更新进度条总长度
+        String totalDuration;
+        String currentPos;
+        if (total > 1000 * 60 * 60) {
+            totalDuration = hourFormat.format(total);
+            currentPos = hourFormat.format(currentProgress);
+
+        } else {
+            totalDuration = minFormat.format(total);
+            currentPos = minFormat.format(currentProgress);
+
+        }
+        if (mTotalDuration != null) {
+            mTotalDuration.setText(totalDuration);
+        }
+        //更新当前时间
+        mCurrentPosition.setText(currentPos);
+        //更新进度
+        if (!mIsUserTouchProgressBar){
+            mDurationSeekBar.setProgress(currentProgress);
+        }
 
     }
 
