@@ -155,7 +155,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback, Vie
     public void onPlayStart() {
         //开始播放，修改UI
         if (mControlBtn != null) {
-            mControlBtn.setImageResource(R.mipmap.stop_normal);
+            mControlBtn.setImageResource(R.drawable.selector_player_pause);
 
         }
 
@@ -164,7 +164,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback, Vie
     @Override
     public void onPlayPause() {
         if (mControlBtn != null) {
-            mControlBtn.setImageResource(R.mipmap.play_normal);
+            mControlBtn.setImageResource(R.drawable.selector_player_play);
 
         }
     }
@@ -172,7 +172,7 @@ public class PlayerActivity extends BaseActivity implements IPlayerCallback, Vie
     @Override
     public void onPlayStop() {
         if (mControlBtn != null) {
-            mControlBtn.setImageResource(R.mipmap.play_normal);
+            mControlBtn.setImageResource(R.drawable.selector_player_play);
 
         }
     }
